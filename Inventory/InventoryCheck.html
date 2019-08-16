@@ -1,0 +1,143 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>財產盤點作業</title>
+    <meta charset="utf-8" />
+    <script src="Scripts/adapter.min.js"></script>
+    <script src="Scripts/vue.js"></script>
+    <script src="Scripts/instascan.min.js"></script>
+    <link href="Inventory.css" rel="stylesheet" />
+    <link href="bootstrap.min.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div id="Inventory">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <h2>盤點作業</h2>
+                </div>
+            </div>
+            <div class="form-row mt-2">
+                <div class="col-auto">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">人員</span>
+                        </div>
+                        <input type="text" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <inventorylist v-bind:invdept="invdept" v-bind:invtories="inventories" v-on:getunchecklist="getunchecklist" v-if="type===1"></inventorylist>
+            <inventorycamera v-bind:scanner="scanner" v-bind:active_camera_id="active_camera_id" v-bind:cameras="cameras" v-bind:scans="scans" v-bind:inventories="inventories" v-on:list="list" v-if="type===0"></inventorycamera>
+        </div>
+    </div>
+
+    <template id="list">
+        <div class="mt-2">
+            <div class="form-row"><div class="col-auto">待盤點</div></div>
+            <div class="form-row">
+                <div class="col-auto">
+                    <table class="table table-bordered table-hover table-responsive">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>科室</th>
+                                <th>未盤數量</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="inv in invdept">
+                                <td>{{inv.DeptName}}</td>
+                                <td>{{inv.Amount}}</td>
+                                <td>
+                                    <button type="button" class="btn btn-primary" v-on:click="get_uncheck(inv.DeptID)">盤點</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="camera">
+        <div>
+            <div class="justify-content-end">
+                <button class="btn btn-primary" v-on:click="back(1)">回上頁</button>
+            </div>
+            <div class="form-row">
+                <div class="sidebar">
+                    <section class="cameras">
+                        <h2>Cameras</h2>
+                        <ul>
+                            <li v-if="cameras.length === 0" class="empty">No cameras found</li>
+                            <li v-for="camera in cameras">
+                                <span v-if="camera.id == active_camera_id" title="formatName(camera.name)" class="active">{{ formatName(camera.name) }}</span>
+                                <span v-if="camera.id != active_camera_id" title="formatName(camera.name)">
+                                    <a @click.stop="selectCamera(camera)">{{ formatName(camera.name) }}</a>
+                                </span>
+                            </li>
+                        </ul>
+                    </section>
+                    <div class="preview-container">
+                        <video id="preview"></video>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="sidebar-left">
+                            <section class="scans">
+                                <h2>Scans</h2>
+                                <ul v-if="scans.length === 0">
+                                    <li class="empty">No scans yet</li>
+                                </ul>
+                                <ul>
+                                    <transition-group name="scans" tag="ul">
+                                        <li v-for="scan in scans" key="scan.date" title="scan.content">{{ scan.content }}</li>
+                                    </transition-group>
+                                </ul>
+                            </section>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-row">
+                            <div class="col-auto">
+                                <table class="table table-bordered table-hover table-responsive">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>條碼</th>
+                                            <th>財產名稱</th>
+                                            <th>保管人</th>
+                                            <th>存放地點</th>
+                                            <th>購置日期</th>
+                                            <th>盤點註記 </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="inv in inventories">
+                                            <td>{{inv.QR_CODE}}</td>
+                                            <td>{{inv.ASS_PNAME}}</td>
+                                            <td>{{inv.CURKEEPER}}</td>
+                                            <td>{{inv.CURPLACE}}</td>
+                                            <td>{{inv.BUY_DATE}}</td>
+                                            <td>{{inv.SYSTEM_MARK}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="Scripts/jquery-3.4.1.min.js"></script>
+    <script src="Scripts/bootstrap.min.js">
+    </script>
+    <script src="Scripts/Inventory.js"></script>
+
+</body>
+</html>
